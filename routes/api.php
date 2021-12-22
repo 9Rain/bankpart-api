@@ -3,6 +3,7 @@
 use App\Http\Controllers\api\{
     UserController,
     AccountController,
+    AuthController,
     PartitionController
 };
 
@@ -20,21 +21,25 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::apiResource('users', UserController::class);
+Route::prefix('auth')->group(function () {
+    Route::post('register', [AuthController::class, 'register']);
+    Route::post('login', [AuthController::class, 'login']);
+    Route::post('logout', [AuthController::class, 'logout'])->middleware('auth.jwt');
+});
 
-Route::prefix('users/{userId}')->group(function () {
-    Route::apiResource('accounts', AccountController::class);
+Route::group(['middleware' => 'auth.jwt'], function () {
+    Route::apiResource('users', UserController::class);
 
-    Route::prefix('accounts/{accountId}')->group(function () {
-        Route::apiResource('partitions', PartitionController::class);
+    Route::prefix('users/{userId}')->group(function () {
+        Route::apiResource('accounts', AccountController::class);
 
-        Route::prefix('partitions/{id}')->group(function () {
-            Route::patch('/addMoney', [PartitionController::class, 'addMoney']);
-            Route::patch('/removeMoney', [PartitionController::class, 'removeMoney']);
+        Route::prefix('accounts/{accountId}')->group(function () {
+            Route::apiResource('partitions', PartitionController::class);
+
+            Route::prefix('partitions/{id}')->group(function () {
+                Route::patch('/addMoney', [PartitionController::class, 'addMoney']);
+                Route::patch('/removeMoney', [PartitionController::class, 'removeMoney']);
+            });
         });
     });
 });
-
-// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-//     return $request->user();
-// });
