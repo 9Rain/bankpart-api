@@ -5,7 +5,7 @@ use App\Http\Controllers\api\{
     AccountController,
     PartitionController
 };
-use App\Http\Requests\StoreUpdateUser;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
