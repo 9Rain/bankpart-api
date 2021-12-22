@@ -20,16 +20,20 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::name('api.')->group(function () {
-    Route::apiResource('users', UserController::class);
+Route::apiResource('users', UserController::class);
 
-    Route::apiResource('users/{userId}/accounts', AccountController::class);
+Route::prefix('users/{userId}')->group(function () {
+    Route::apiResource('accounts', AccountController::class);
 
-    Route::apiResource('users/{userId}/accounts/{accountId}/partitions', PartitionController::class);
-    Route::patch('users/{userId}/accounts/{accountId}/partitions/{id}/addMoney', [PartitionController::class, 'addMoney']);
-    Route::patch('users/{userId}/accounts/{accountId}/partitions/{id}/removeMoney', [PartitionController::class, 'removeMoney']);
+    Route::prefix('accounts/{accountId}')->group(function () {
+        Route::apiResource('partitions', PartitionController::class);
+
+        Route::prefix('partitions/{id}')->group(function () {
+            Route::patch('/addMoney', [PartitionController::class, 'addMoney']);
+            Route::patch('/removeMoney', [PartitionController::class, 'removeMoney']);
+        });
+    });
 });
-
 
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
