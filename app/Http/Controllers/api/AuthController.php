@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreUpdateUser;
+use App\Http\Requests\RegisterUser;
 use App\Http\Resources\UserResource;
 use App\Services\UserService;
 use Illuminate\Http\Request;
@@ -16,12 +16,14 @@ class AuthController extends Controller
         $this->userService = $userService;
     }
 
-    public function register(StoreUpdateUser $request)
+    public function register(RegisterUser $request)
     {
         $data = $request->validated();
+
         $data['password'] = Hash::make($data['password']);
         $user = $this->userService
             ->create($data);
+
         return new UserResource($user);
     }
     /**

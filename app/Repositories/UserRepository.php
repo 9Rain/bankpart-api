@@ -15,4 +15,9 @@ class UserRepository extends CRUDRepository
     {
         return $this->get($id)->accounts;
     }
+
+    public function getByEmail(string $email)
+    {
+        return $this->entity->where('email', $email);
+    }
 }

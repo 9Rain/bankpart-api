@@ -23,6 +23,11 @@ class UserService
         return $this->repository->get($id);
     }
 
+    public function getByEmail(string $email)
+    {
+        return $this->repository->getByEmail($email);
+    }
+
     public function create(array $data)
     {
         return $this->repository->create($data);
@@ -41,5 +46,11 @@ class UserService
     public function getAccounts(string $id)
     {
         return $this->repository->getAccounts($id);
+    }
+
+    public function userExists(string $email)
+    {
+        return $this->getByEmail($email)
+            ->count() > 0;
     }
 }
