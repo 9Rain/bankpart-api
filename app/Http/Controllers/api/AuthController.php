@@ -50,7 +50,7 @@ class AuthController extends Controller
         return response()->json([], 204);
     }
 
-    protected function respondWithToken($token): \Illuminate\Http\JsonResponse
+    protected function respondWithToken(string $token): \Illuminate\Http\JsonResponse
     {
         return response()->json([
             'access_token' => $token,
