@@ -48,6 +48,11 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(Account::class);
     }
 
+    public function role()
+    {
+        return $this->hasOne(UserRole::class);
+    }
+
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.
      *
