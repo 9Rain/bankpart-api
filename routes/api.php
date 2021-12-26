@@ -7,6 +7,12 @@ use App\Http\Controllers\api\{
     PartitionController
 };
 
+use App\Http\Controllers\api\Staff\{
+    UserController as StaffUserController,
+    AccountController as StaffAccountController,
+    PartitionController as StaffPartitionController,
+};
+
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -32,18 +38,31 @@ Route::prefix('v1')->group(function () {
     });
 
     Route::group(['middleware' => 'auth.jwt'], function () {
-        Route::apiResource('users', UserController::class);
-
         Route::prefix('users/{userId}')->group(function () {
-            Route::apiResource('accounts', AccountController::class);
-
             Route::prefix('accounts/{accountId}')->group(function () {
-                Route::apiResource('partitions', PartitionController::class);
-
                 Route::prefix('partitions/{id}')->group(function () {
                     Route::patch('/addMoney', [PartitionController::class, 'addMoney']);
                     Route::patch('/removeMoney', [PartitionController::class, 'removeMoney']);
                 });
+                Route::apiResource('partitions', PartitionController::class);
+            });
+            Route::apiResource('accounts', AccountController::class);
+        });
+        Route::apiResource('users', UserController::class);
+
+        Route::group(['middleware' => 'auth.staff'], function () {
+            Route::prefix('admin')->group(function () {
+                Route::prefix('users/{user}')->group(function () {
+                    Route::prefix('accounts/{account}')->group(function () {
+                        Route::prefix('partitions/{partition}')->group(function () {
+                            Route::patch('/add-money', [StaffPartitionController::class, 'addMoney']);
+                            Route::patch('/remove-money', [StaffPartitionController::class, 'removeMoney']);
+                        });
+                        Route::apiResource('partitions', StaffPartitionController::class);
+                    });
+                    Route::apiResource('accounts', StaffAccountController::class);
+                });
+                Route::apiResource('users', StaffUserController::class);
             });
         });
     });

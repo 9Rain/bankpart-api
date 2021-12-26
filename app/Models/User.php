@@ -22,6 +22,7 @@ class User extends Authenticatable implements JWTSubject
         'name',
         'email',
         'password',
+        'user_role_id',
     ];
 
     /**
@@ -42,6 +43,8 @@ class User extends Authenticatable implements JWTSubject
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    protected $perPage = 20;
 
     public function accounts()
     {

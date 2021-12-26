@@ -14,6 +14,8 @@ class Account extends Model
         'user_id'
     ];
 
+    protected $perPage = 20;
+
     public function partitions()
     {
         return $this->hasMany(Partition::class);
