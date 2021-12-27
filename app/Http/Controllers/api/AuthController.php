@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Services\UserService;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\JsonResponse;
 use App\Http\Requests\Auth\{
     LoginUserRequest,
     RegisterUserRequest
@@ -19,7 +20,7 @@ class AuthController extends Controller
         $this->userService = $userService;
     }
 
-    public function register(RegisterUserRequest $request): \App\Http\Resources\UserResource
+    public function register(RegisterUserRequest $request): UserResource
     {
         $data = $request->validated();
 
@@ -30,7 +31,7 @@ class AuthController extends Controller
         return new UserResource($user);
     }
 
-    public function login(LoginUserRequest $request): \Illuminate\Http\JsonResponse
+    public function login(LoginUserRequest $request): JsonResponse
     {
         $credentials = $request->validated();
 
@@ -41,12 +42,12 @@ class AuthController extends Controller
         return $this->respondWithToken($token);
     }
 
-    public function me(): \Illuminate\Http\JsonResponse
+    public function me(): UserResource
     {
-        return response()->json(auth('api')->user());
+        return new UserResource(auth('api')->user());
     }
 
-    public function logout(): \Illuminate\Http\JsonResponse
+    public function logout(): JsonResponse
     {
         auth('api')->logout();
 
