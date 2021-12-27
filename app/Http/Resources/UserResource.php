@@ -5,6 +5,7 @@ namespace App\Http\Resources;
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 
+
 class UserResource extends JsonResource
 {
     /**
@@ -15,11 +16,12 @@ class UserResource extends JsonResource
      */
     public function toArray($request)
     {
+        $loggedUser = auth('api')->user();
         return [
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
-            $this->mergeWhen(auth('api')->user()->isFromStaff(), [
+            $this->mergeWhen($loggedUser && $loggedUser->isFromStaff(), [
                 'email_verified' => !is_null($this->email_verified_at),
                 'email_verified_at' => $this->when(
                     !is_null($this->email_verified_at),
