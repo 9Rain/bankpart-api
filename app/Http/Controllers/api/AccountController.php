@@ -31,7 +31,6 @@ class AccountController extends Controller
 
     public function index(User $user, UserService $userService): AnonymousResourceCollection
     {
-        dd($user->id);
         $accounts = $userService->getAllAccounts($user);
         return AccountResource::collection($accounts);
     }
