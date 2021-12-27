@@ -67,5 +67,6 @@ class Kernel extends HttpKernel
         'auth.staff' => \App\Http\Middleware\ApiStaffOnlyRoute::class,
         'account.user' => \App\Http\Middleware\VerifyAccountOwnership::class,
         'partition.account' => \App\Http\Middleware\VerifyIfPartitionBelongsToAccount::class,
+        'set.user' => \App\Http\Middleware\SetUserModel::class,
     ];
 }

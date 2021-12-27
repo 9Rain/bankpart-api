@@ -56,6 +56,11 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasOne(UserRole::class);
     }
 
+    public function isFromStaff()
+    {
+        return $this->user_role_id != 2;
+    }
+
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.
      *

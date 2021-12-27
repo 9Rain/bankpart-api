@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Staff\Partition;
+namespace App\Http\Requests\User;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class CreatePartitionRequest extends FormRequest
+class CreateUserRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,11 +24,10 @@ class CreatePartitionRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => ['required', 'min:3', 'max:255'],
-            'description' => ['nullable', 'min:3', 'max:9999'],
-            'due_date' => ['nullable', 'date'],
-            'balance' => ['required', 'numeric', 'min:0'],
-            'goal' => ['nullable', 'numeric', 'min:0'],
+            'name' => ['required', 'string', 'min:3', 'max:191'],
+            'email' => ['required', 'email', 'unique:App\Models\User,email'],
+            'user_role_id' => ['required', 'integer', 'exists:user_roles,id'],
+            'password' => ['string', 'min:8'],
         ];
     }
 }

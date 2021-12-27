@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Staff\Account;
+namespace App\Http\Requests\Auth;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class CreateAccountRequest extends FormRequest
+class RegisterUserRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,6 +25,20 @@ class CreateAccountRequest extends FormRequest
     {
         return [
             'name' => ['required', 'min:3', 'max:191'],
+            'email' => ['required', 'unique:App\Models\User,email', 'email'],
+            'password' => ['required', 'min:8'],
+        ];
+    }
+
+    /**
+     * Get the error messages for the defined validation rules.
+     *
+     * @return array
+     */
+    public function messages()
+    {
+        return [
+            'email.unique' => 'User already exists',
         ];
     }
 }

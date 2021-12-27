@@ -1,11 +1,18 @@
 <?php
 
-namespace App\Http\Controllers\api;
+namespace App\Http\Controllers\Api;
 
+use App\Models\User;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreUpdateUser;
 use App\Http\Resources\UserResource;
 use App\Services\UserService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use App\Http\Requests\User\{
+    CreateUserRequest,
+    UpdateUserRequest
+};
+
 
 class UserController extends Controller
 {
@@ -16,65 +23,40 @@ class UserController extends Controller
         $this->userService = $userService;
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+    public function index(): AnonymousResourceCollection
     {
         $users = $this->userService->getAll();
         return UserResource::collection($users);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \App\Http\Requests\StoreUpdateUser  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(StoreUpdateUser $request)
+    public function store(CreateUserRequest $request): UserResource
     {
+        $userData = $request->validated();
+
         $user = $this->userService
-            ->create($request->validated());
+            ->create($userData);
+
         return new UserResource($user);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
+    public function show(User $user): UserResource
     {
-        $user = $this->userService->get($id);
         return new UserResource($user);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \App\Http\Requests\StoreUpdateUser  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(StoreUpdateUser $request, $id)
+    public function update(UpdateUserRequest $request, User $user): UserResource
     {
-        $user = $this->userService
-            ->update($id, $request->validated());
-        return new UserResource($user);
+        $userData = $request->validated();
+
+        $updatedUser = $this->userService
+            ->update($user, $userData);
+
+        return new UserResource($updatedUser);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
+    public function destroy(User $user): JsonResponse
     {
-        $this->userService->delete($id);
+        $this->userService->delete($user);
         return response()->json([], 204);
     }
 }

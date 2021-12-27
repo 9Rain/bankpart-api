@@ -2,55 +2,47 @@
 
 namespace App\Services;
 
-use App\Repositories\UserRepository;
+use App\Helpers\StringHelper;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class UserService
 {
-    protected $repository;
-
-    public function __construct(UserRepository $todoRepository)
-    {
-        $this->repository = $todoRepository;
-    }
-
     public function getAll()
     {
-        return $this->repository->getAll();
-    }
-
-    public function get(string $id)
-    {
-        return $this->repository->get($id);
-    }
-
-    public function getByEmail(string $email)
-    {
-        return $this->repository->getByEmail($email);
+        return User::paginate();
     }
 
     public function create(array $data)
     {
-        return $this->repository->create($data);
+        $data['password'] = $this->getEncryptedPassword($data['password']);
+        return User::create($data);
     }
 
-    public function update(string $id, array $data)
+    public function update(User $user, array $data)
     {
-        return $this->repository->update($id, $data);
+        if (isset($data['password'])) {
+            $data['password'] = $this->getEncryptedPassword($data['password']);
+        }
+        $user->update($data);
+        return $user;
     }
 
-    public function delete(string $id)
+    public function delete(User $user)
     {
-        return $this->repository->delete($id);
+        return $user->delete();
     }
 
-    public function getAccounts(string $id)
+    public function getAllAccounts(User $user)
     {
-        return $this->repository->getAccounts($id);
+        return $user->accounts;
     }
 
-    public function userExists(string $email)
+    private function getEncryptedPassword(string $password = null)
     {
-        return $this->getByEmail($email)
-            ->count() > 0;
+        if (!$password) {
+            $password = StringHelper::generateRandom(8);
+        }
+        return Hash::make($password);
     }
 }

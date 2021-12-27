@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Staff\Account;
+namespace App\Http\Requests\Partition;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateAccountRequest extends FormRequest
+class OutcomePartitionRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,7 +24,14 @@ class UpdateAccountRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => ['required', 'min:3', 'max:191'],
+            'amount' => ['required', 'numeric', 'min:0.01', 'lte:balance'],
         ];
+    }
+
+    public function all($keys = null)
+    {
+        $data = parent::all($keys);
+        $data['balance'] = $this->route('partition')->balance;
+        return $data;
     }
 }

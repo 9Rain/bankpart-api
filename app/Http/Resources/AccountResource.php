@@ -18,10 +18,13 @@ class AccountResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'created_at' => Carbon::create($this->created_at)->format('Y-m-d H:i:s'),
             'user' => [
                 'id' => $this->user_id,
             ],
+            $this->mergeWhen(auth('api')->user()->isFromStaff(), [
+                'created_at' => Carbon::create($this->created_at)->format('Y-m-d H:i:s'),
+                'updated_at' => Carbon::create($this->updated_at)->format('Y-m-d H:i:s'),
+            ]),
         ];
     }
 }

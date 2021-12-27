@@ -2,15 +2,12 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\api\{
+    AuthController
+};
+use App\Http\Controllers\Api\{
     UserController,
     AccountController,
-    AuthController,
-    PartitionController
-};
-use App\Http\Controllers\api\Staff\{
-    UserController as StaffUserController,
-    AccountController as StaffAccountController,
-    PartitionController as StaffPartitionController,
+    PartitionController,
 };
 
 
@@ -37,17 +34,40 @@ Route::prefix('v1')->group(function () {
     });
 
     Route::group(['middleware' => 'auth.jwt'], function () {
-        Route::prefix('users/{userId}')->group(function () {
-            Route::prefix('accounts/{accountId}')->group(function () {
-                Route::prefix('partitions/{id}')->group(function () {
-                    Route::patch('/addMoney', [PartitionController::class, 'addMoney']);
-                    Route::patch('/removeMoney', [PartitionController::class, 'removeMoney']);
-                });
-                Route::apiResource('partitions', PartitionController::class);
+
+        Route::apiResource('users', UserController::class, ['only' => ['index', 'show']]);
+
+        Route::group(['middleware' => ['account.user', 'set.user'], 'prefix' => 'accounts/{account}'], function () {
+
+            Route::group(['middleware' => 'partition.account', 'prefix' => 'partitions/{partition}'], function () {
+                Route::patch('/add-money', [PartitionController::class, 'addMoney']);
+                Route::patch('/remove-money', [PartitionController::class, 'removeMoney']);
             });
-            Route::apiResource('accounts', AccountController::class);
+
+            Route::apiResource(
+                'partitions',
+                PartitionController::class,
+                ['only' => ['show', 'update', 'destroy']]
+            )->middleware(['partition.account']);
+
+            Route::apiResource(
+                'partitions',
+                PartitionController::class,
+                ['except' => ['show', 'update', 'destroy']]
+            );
         });
-        Route::apiResource('users', UserController::class);
+
+        Route::apiResource(
+            'accounts',
+            AccountController::class,
+            ['only' => ['show', 'update', 'destroy']]
+        )->middleware(['account.user', 'set.user']);
+
+        Route::apiResource(
+            'accounts',
+            AccountController::class,
+            ['except' => ['show', 'update', 'destroy']]
+        )->middleware(['set.user']);
 
         Route::group(['middleware' => 'auth.staff', 'prefix' => 'admin'], function () {
 
@@ -56,37 +76,37 @@ Route::prefix('v1')->group(function () {
                 Route::group(['middleware' => 'account.user', 'prefix' => 'accounts/{account}'], function () {
 
                     Route::group(['middleware' => 'partition.account', 'prefix' => 'partitions/{partition}'], function () {
-                        Route::patch('/add-money', [StaffPartitionController::class, 'addMoney']);
-                        Route::patch('/remove-money', [StaffPartitionController::class, 'removeMoney']);
+                        Route::patch('/add-money', [PartitionController::class, 'addMoney']);
+                        Route::patch('/remove-money', [PartitionController::class, 'removeMoney']);
                     });
 
                     Route::apiResource(
                         'partitions',
-                        StaffPartitionController::class,
+                        PartitionController::class,
                         ['only' => ['show', 'update', 'destroy']]
                     )->middleware(['partition.account']);
 
                     Route::apiResource(
                         'partitions',
-                        StaffPartitionController::class,
+                        PartitionController::class,
                         ['except' => ['show', 'update', 'destroy']]
                     );
                 });
 
                 Route::apiResource(
                     'accounts',
-                    StaffAccountController::class,
+                    AccountController::class,
                     ['only' => ['show', 'update', 'destroy']]
                 )->middleware(['account.user']);
 
                 Route::apiResource(
                     'accounts',
-                    StaffAccountController::class,
+                    AccountController::class,
                     ['except' => ['show', 'update', 'destroy']]
                 );
             });
 
-            Route::apiResource('users', StaffUserController::class);
+            Route::apiResource('users', UserController::class);
         });
     });
 });

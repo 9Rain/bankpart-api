@@ -1,13 +1,16 @@
 <?php
 
-namespace App\Http\Controllers\api;
+namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\LoginUserRequest;
-use App\Http\Requests\RegisterUserRequest;
 use App\Http\Resources\UserResource;
 use App\Services\UserService;
 use Illuminate\Support\Facades\Hash;
+use App\Http\Requests\Auth\{
+    LoginUserRequest,
+    RegisterUserRequest
+};
+
 
 class AuthController extends Controller
 {

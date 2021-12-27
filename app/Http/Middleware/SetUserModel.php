@@ -5,7 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 
-class ApiStaffOnlyRoute
+class SetUserModel
 {
     /**
      * Handle an incoming request.
@@ -16,10 +16,12 @@ class ApiStaffOnlyRoute
      */
     public function handle(Request $request, Closure $next)
     {
-        if (!auth('api')->user()->isFromStaff()) {
-            return response()->json(['error' => 'Forbbiden'], 403);
+        if (!$request->route('user')) {
+            $request->route()->parameters = array_merge(
+                ['user' => $request->user()],
+                $request->route()->parameters
+            );
         }
-
         return $next($request);
     }
 }

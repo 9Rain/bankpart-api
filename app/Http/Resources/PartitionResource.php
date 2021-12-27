@@ -22,10 +22,13 @@ class PartitionResource extends JsonResource
             'balance' => number_format($this->balance, 2, '.', ''),
             'goal' => !is_null($this->goal) ? number_format($this->goal, 2, '.', '') : null,
             'due_date' => !is_null($this->due_date) ? Carbon::create($this->due_date)->format('Y-m-d H:i:s') : null,
-            'created_at' => Carbon::create($this->created_at)->format('Y-m-d H:i:s'),
             'account' => [
                 'id' => $this->account_id,
             ],
+            $this->mergeWhen(auth('api')->user()->isFromStaff(), [
+                'created_at' => Carbon::create($this->created_at)->format('Y-m-d H:i:s'),
+                'updated_at' => Carbon::create($this->updated_at)->format('Y-m-d H:i:s'),
+            ]),
         ];
     }
 }

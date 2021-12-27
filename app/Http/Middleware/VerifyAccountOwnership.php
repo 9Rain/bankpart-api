@@ -16,9 +16,20 @@ class VerifyAccountOwnership
      */
     public function handle(Request $request, Closure $next)
     {
-        if ($request->route('user')->id != $request->route('account')->user_id) {
-            return response()->json(['error' => 'This account doesn\'t belong to the user'], 400);
+        if ($request->route('user')) {
+            $user = $request->route('user');
+            $error = 'This account doesn\'t belong to the user';
+            $code = 400;
+        } else {
+            $user = auth('api')->user();
+            $error = 'This account doesn\'t belong to the current user';
+            $code = 403;
         }
+
+        if ($user->id != $request->route('account')->user_id) {
+            return response()->json(['error' => $error], $code);
+        }
+
         return $next($request);
     }
 }

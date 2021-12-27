@@ -2,84 +2,44 @@
 
 namespace App\Services;
 
-use App\Repositories\PartitionRepository;
-use InvalidArgumentException;
+use App\Models\Partition;
 
 class PartitionService
 {
-    protected $repository;
-
-    public function __construct(PartitionRepository $partitionRepository, AccountService $accountService)
-    {
-        $this->repository = $partitionRepository;
-        $this->accountService = $accountService;
-    }
-
     public function getAll()
     {
-        return $this->repository->getAll();
+        return Partition::getAll();
     }
 
-    public function get(string $id)
+    public function create(array $data)
     {
-        return $this->repository->get($id);
+        return Partition::create($data);
     }
 
-    public function create(string $userId, string $accountId, array $data)
+    public function update(Partition $partition, array $data)
     {
-        $this->accountService->userHasAccount($userId, $accountId);
-        $data['account_id'] = $accountId;
-
-        return $this->repository->create($data);
+        $partition->update($data);
+        return $partition;
     }
 
-    public function update(string $userId, string $accountId, string $id, array $data)
+    public function delete(Partition $partition)
     {
-        $this->accountHasPartition($userId, $accountId, $id);
-        return $this->repository->update($id, $data);
+        return $partition->delete();
     }
 
-    public function delete(string $userId, string $accountId, string $id)
+    public function addMoney(Partition $partition, array $data)
     {
-        $this->accountHasPartition($userId, $accountId, $id);
-        return $this->repository->delete($id);
-    }
-
-    public function getUserAccountPartition(string $userId, string $accountId, string $id)
-    {
-        $this->accountService->userHasAccount($userId, $accountId);
-        return $this->repository->getAccountPartition($accountId, $id);
-    }
-
-    private function accountHasPartition(string $userId, string $accountId, string $id)
-    {
-        $this->getUserAccountPartition($userId, $accountId, $id);
-    }
-
-    public function addMoney(string $userId, string $accountId, string $id, array $data)
-    {
-        $partition = $this->getUserAccountPartition($userId, $accountId, $id);
-
         $amount = $data['amount'];
         $newBalance = $partition->balance + $amount;
-
-        return $this->repository->update($id, array('balance' => $newBalance));
+        $partition->update(['balance' => $newBalance]);
+        return $partition;
     }
 
-    public function removeMoney(string $userId, string $accountId, string $id, array $data)
+    public function removeMoney(Partition $partition, array $data)
     {
-        $partition = $this->getUserAccountPartition($userId, $accountId, $id);
-
         $amount = $data['amount'];
         $newBalance = $partition->balance - $amount;
-
-        if ($newBalance < 0) {
-            throw new InvalidArgumentException(
-                'The amount can\'t be greater than the current balance',
-                400
-            );
-        } else {
-            return $this->repository->update($id, array('balance' => $newBalance));
-        }
+        $partition->update(['balance' => $newBalance]);
+        return $partition;
     }
 }

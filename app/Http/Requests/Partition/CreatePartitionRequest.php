@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Staff\Partition;
+namespace App\Http\Requests\Partition;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class OutcomePartitionRequest extends FormRequest
+class CreatePartitionRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,14 +24,11 @@ class OutcomePartitionRequest extends FormRequest
     public function rules()
     {
         return [
-            'amount' => ['required', 'numeric', 'min:0.01', 'lte:balance'],
+            'name' => ['required', 'min:3', 'max:255'],
+            'description' => ['nullable', 'min:3', 'max:9999'],
+            'due_date' => ['nullable', 'date'],
+            'balance' => ['required', 'numeric', 'min:0'],
+            'goal' => ['nullable', 'numeric', 'min:0'],
         ];
-    }
-
-    public function all($keys = null)
-    {
-        $data = parent::all($keys);
-        $data['balance'] = $this->route('partition')->balance;
-        return $data;
     }
 }

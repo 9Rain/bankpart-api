@@ -1,132 +1,87 @@
 <?php
 
-namespace App\Http\Controllers\api;
+namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\IncomeOutcomePartition;
-use App\Http\Requests\StoreUpdatePartition;
 use App\Http\Resources\PartitionResource;
-use App\Services\AccountService;
-use App\Services\PartitionService;
-use InvalidArgumentException;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use App\Services\{
+    AccountService,
+    PartitionService
+};
+use App\Http\Requests\Partition\{
+    CreatePartitionRequest,
+    UpdatePartitionRequest,
+    IncomePartitionRequest,
+    OutcomePartitionRequest
+};
+use App\Models\{
+    Account,
+    Partition,
+    User
+};
+
 
 class PartitionController extends Controller
 {
-    protected $userService;
-    protected $accountService;
+    protected $partitionService;
 
-    public function __construct(AccountService $accountService, PartitionService $partitionService)
+    public function __construct(PartitionService $partitionService)
     {
-        $this->accountService = $accountService;
         $this->partitionService = $partitionService;
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @param int $userId
-     * @param int $accountId
-     * @return \Illuminate\Http\Response
-     */
-    public function index(int $userId, int $accountId)
+    public function index(User $user, Account $account, AccountService $accountService): AnonymousResourceCollection
     {
-        $partitions = $this->accountService->getPartitions($userId, $accountId);
+        $partitions = $accountService->getAllPartitions($account);
         return PartitionResource::collection($partitions);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param int $userId
-     * @param int $accountId
-     * @param  \App\Http\Requests\StoreUpdatePartition  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(int $userId, int $accountId, StoreUpdatePartition $request)
+    public function store(User $user, Account $account, CreatePartitionRequest $request): PartitionResource
     {
         $partition = $this->partitionService
-            ->create($userId, $accountId, $request->validated());
+            ->create($request->validated() + ['account_id' => $account->id]);
         return new PartitionResource($partition);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $userId
-     * @param  int  $accountId
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show(int $userId, int $accountId, int $id)
+    public function show(User $user, Account $account, Partition $partition): PartitionResource
     {
-        $partition = $this->partitionService->getUserAccountPartition($userId, $accountId, $id);
         return new PartitionResource($partition);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \App\Http\Requests\StoreUpdatePartition  $request
-     * @param  int  $userId
-     * @param  int  $accountId
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(StoreUpdatePartition $request, int $userId, int $accountId, int $id)
+    public function update(User $user, Account $account, Partition $partition, UpdatePartitionRequest $request): PartitionResource
     {
         $partition = $this->partitionService
-            ->update($userId, $accountId, $id, $request->validated());
+            ->update($partition, $request->validated());
         return new PartitionResource($partition);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $userId
-     * @param  int  $accountId
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(int $userId, int $accountId, int $id)
+    public function destroy(User $user, Account $account, Partition $partition): JsonResponse
     {
-        $this->partitionService->delete($userId, $accountId, $id);
+        $this->partitionService->delete($partition);
         return response()->json([], 204);
     }
 
-
-    /**
-     * Add money to partition.
-     *
-     * @param  \App\Http\Requests\IncomeOutcomePartition  $request
-     * @param  int  $userId
-     * @param  int  $accountId
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function addMoney(IncomeOutcomePartition $request, int $userId, int $accountId, int $id)
-    {
+    public function addMoney(
+        User $user,
+        Account $account,
+        Partition $partition,
+        IncomePartitionRequest $request
+    ): PartitionResource {
         $partition = $this->partitionService
-            ->addMoney($userId, $accountId, $id, $request->validated());
+            ->addMoney($partition, $request->validated());
         return new PartitionResource($partition);
     }
 
-    /**
-     * Remove money from partition.
-     *
-     * @param  \App\Http\Requests\IncomeOutcomePartition  $request
-     * @param  int  $userId
-     * @param  int  $accountId
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function removeMoney(IncomeOutcomePartition $request, int $userId, int $accountId, int $id)
-    {
-        try {
-            $partition = $this->partitionService
-                ->removeMoney($userId, $accountId, $id, $request->validated());
-            return new PartitionResource($partition);
-        } catch (InvalidArgumentException $e) {
-            return response()->json(['message' => $e->getMessage()], $e->getCode());
-        }
+    public function removeMoney(
+        User $user,
+        Account $account,
+        Partition $partition,
+        OutcomePartitionRequest $request
+    ): PartitionResource {
+        $partition = $this->partitionService
+            ->removeMoney($partition, $request->validated());
+        return new PartitionResource($partition);
     }
 }
