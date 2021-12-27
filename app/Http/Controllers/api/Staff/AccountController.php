@@ -4,9 +4,10 @@ namespace App\Http\Controllers\api\Staff;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Staff\AccountResource;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use App\Http\Requests\Staff\Account\{
     CreateAccountRequest,
-    ShowDeleteAccountRequest,
     UpdateAccountRequest
 };
 use App\Models\{
@@ -18,6 +19,7 @@ use App\Services\Staff\{
     UserService
 };
 
+
 class AccountController extends Controller
 {
     protected $accountService;
@@ -27,35 +29,33 @@ class AccountController extends Controller
         $this->accountService = $accountService;
     }
 
-    public function index(User $user, UserService $userService): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function index(User $user, UserService $userService): AnonymousResourceCollection
     {
         $accounts = $userService->getAllAccounts($user);
         return AccountResource::collection($accounts);
     }
 
-    public function store(User $user, CreateAccountRequest $request): \App\Http\Resources\Staff\AccountResource
+    public function store(User $user, CreateAccountRequest $request): AccountResource
     {
         $account = $this->accountService
             ->create($request->validated() + ['user_id' => $user->id]);
         return new AccountResource($account);
     }
 
-    public function show(User $user, Account $account, ShowDeleteAccountRequest $request): \App\Http\Resources\Staff\AccountResource
+    public function show(User $user, Account $account): AccountResource
     {
-        $request->validated();
         return new AccountResource($account);
     }
 
-    public function update(User $user, Account $account, UpdateAccountRequest $request): \App\Http\Resources\Staff\AccountResource
+    public function update(User $user, Account $account, UpdateAccountRequest $request): AccountResource
     {
         $account = $this->accountService
             ->update($account, $request->validated());
         return new AccountResource($account);
     }
 
-    public function destroy(User $user, Account $account, ShowDeleteAccountRequest $request): \Illuminate\Http\JsonResponse
+    public function destroy(User $user, Account $account): JsonResponse
     {
-        $request->validated();
         $this->accountService->delete($account);
         return response()->json([], 204);
     }

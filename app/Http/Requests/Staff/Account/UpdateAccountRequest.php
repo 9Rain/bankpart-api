@@ -25,16 +25,6 @@ class UpdateAccountRequest extends FormRequest
     {
         return [
             'name' => ['required', 'min:3', 'max:191'],
-            'account_user_id' => ['same:user_id'],
-            'user_id' => ['same:account_user_id'],
         ];
-    }
-
-    public function all($keys = null)
-    {
-        $data = parent::all($keys);
-        $data['account_user_id'] = $this->route('account')->user_id;
-        $data['user_id'] = $this->route('user')->id;
-        return $data;
     }
 }

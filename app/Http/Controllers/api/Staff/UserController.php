@@ -2,14 +2,17 @@
 
 namespace App\Http\Controllers\api\Staff;
 
+use App\Models\User;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Staff\UserResource;
+use App\Services\Staff\UserService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use App\Http\Requests\Staff\User\{
     CreateUserRequest,
     UpdateUserRequest
 };
-use App\Http\Resources\Staff\UserResource;
-use App\Models\User;
-use App\Services\Staff\UserService;
+
 
 class UserController extends Controller
 {
@@ -20,13 +23,13 @@ class UserController extends Controller
         $this->userService = $userService;
     }
 
-    public function index(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function index(): AnonymousResourceCollection
     {
         $users = $this->userService->getAll();
         return UserResource::collection($users);
     }
 
-    public function store(CreateUserRequest $request): \App\Http\Resources\Staff\UserResource
+    public function store(CreateUserRequest $request): UserResource
     {
         $userData = $request->validated();
 
@@ -36,12 +39,12 @@ class UserController extends Controller
         return new UserResource($user);
     }
 
-    public function show(User $user): \App\Http\Resources\Staff\UserResource
+    public function show(User $user): UserResource
     {
         return new UserResource($user);
     }
 
-    public function update(UpdateUserRequest $request, User $user): \App\Http\Resources\Staff\UserResource
+    public function update(UpdateUserRequest $request, User $user): UserResource
     {
         $userData = $request->validated();
 
@@ -51,7 +54,7 @@ class UserController extends Controller
         return new UserResource($updatedUser);
     }
 
-    public function destroy(User $user): \Illuminate\Http\JsonResponse
+    public function destroy(User $user): JsonResponse
     {
         $this->userService->delete($user);
         return response()->json([], 204);

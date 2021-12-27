@@ -65,5 +65,7 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'auth.jwt' => \App\Http\Middleware\ApiProtectedRoute::class,
         'auth.staff' => \App\Http\Middleware\ApiStaffOnlyRoute::class,
+        'account.user' => \App\Http\Middleware\VerifyAccountOwnership::class,
+        'partition.account' => \App\Http\Middleware\VerifyIfPartitionBelongsToAccount::class,
     ];
 }
